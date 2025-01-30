@@ -91,17 +91,19 @@ def LDA(xs, ys, outs, px, py):
         _ys = ys[inds]
         mus.append([float(np.mean(_xs)), 
                     float(np.mean(_ys))])
+
+        covs.append([[float(np.std(_xs)), 0], 
+                     [0, float(np.std(_ys))]])
         fracs.append(float(len(inds)) / len(outs))
 
-    cov = np.array([[float(np.std(xs)), 0],
-                    [0, float(np.std(ys))]])
 
     deltas = []
     for ii in range(len(categories)):
-        delta = np.dot( np.dot(np.array([px, py]).T, np.linalg.inv(cov)), 
-                        np.array(mus[ii])) -  \
-                        0.5*np.dot( np.dot(np.array(mus[ii]).T, np.linalg.inv(cov)), 
-                        np.array(mus[ii])) + np.log(fracs[ii])
+        delta = -0.5*np.dot( np.dot((np.array([px, py])-np.array(mus[ii])).T, np.linalg.inv(covs[ii])), 
+                        (np.array([px,py])-np.array(mus[ii]))) -  \
+                        0.5 * np.log(np.linalg.det(covs[ii])) + np.log(fracs[ii])
+
+
         deltas.append(delta)
     
 
